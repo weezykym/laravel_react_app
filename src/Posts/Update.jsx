@@ -1,10 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../Context/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function Create() {
-    const {token} = useContext(AppContext);
+export default function Update() {
+    const {token, user} = useContext(AppContext);
     const navigate = useNavigate();
+    const {id} = useParams();
 
     const [formData, setFormData] = useState({
         title: '',
@@ -14,11 +15,28 @@ export default function Create() {
 
     const [errors, setErrors] = useState({});
 
-    async function handleCreate(e) {
+    async function getPost() {
+        const res = await fetch(`/api/posts/${id}`);
+
+        const data = await res.json();
+
+        if (res.ok) {
+            if(data.post.user_id !== user.id) {
+                navigate("/");
+            }
+            setFormData({
+                title: data.post.title,
+                body: data.post.body
+            })
+        }
+
+    }
+
+    async function handleUpdate(e) {
         e.preventDefault();
 
-        const res = await fetch('/api/posts', {
-            method: 'post',
+        const res = await fetch(`/api/posts/${id}`, {
+            method: 'put',
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -27,6 +45,8 @@ export default function Create() {
 
         const data = await res.json();
 
+        console.log(data)
+
         if (data.errors) {
             setErrors(data.errors);
         } else {
@@ -34,10 +54,14 @@ export default function Create() {
         }
     }
 
+    useEffect(()=> {
+        getPost();
+    },[])
+
     return (
         <>
-            <h1 className="title">Create a new post</h1>
-            <form onSubmit={handleCreate} className="w-1/2 mx-auto space-y-6">
+            <h1 className="title">Update post</h1>
+            <form onSubmit={handleUpdate} className="w-1/2 mx-auto space-y-6">
                 <div>
                     <input type="text" placeholder="Post title"
                      value={formData.title}
@@ -52,7 +76,7 @@ export default function Create() {
                 </div>
                 {errors.body && <p className="error">{errors.body[0]}</p>}
 
-                <button className="primary-btn" type="submit">Create</button>
+                <button className="primary-btn" type="submit">Update</button>
             </form>
         </>
     );

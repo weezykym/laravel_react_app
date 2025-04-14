@@ -8,6 +8,8 @@ import Register from './Pages/Auth/Register';
 import { useContext } from 'react';
 import { AppContext } from './Context/AppContext';
 import Create from './Posts/Create';
+import Show from './Posts/Show';
+import Update from './Posts/Update';
 
 
 export default function App(){
@@ -19,10 +21,12 @@ export default function App(){
         <Route path='/' element={<Layout />}>
 
           <Route index element={<Home />} />
-          <Route path='/register' element={user? <Home /> : <Register />} />
-          <Route path='/login' element={user? <Home /> : <Login />} />
+          <Route path='/register' element={user ? <Home /> : <Register />} />
+          <Route path='/login' element={user ? <Home /> : <Login />} />
 
-          <Route path= '/create' element= {user? <Create /> : <Login />} ></Route>          
+          <Route path= '/create' element= {user ? <Create /> : <Login />} />
+          <Route path='/posts/:id' element={<Show />} />
+          <Route path= '/posts/update/:id' element= {user ? <Update /> : <Login />} />
 
         </Route>
       </Routes>
